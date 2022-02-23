@@ -1,0 +1,38 @@
+server:
+  port: 80
+  servlet.session:
+    timeout: 7d
+    cookie:
+      max-age: 30d
+      name: ${application.security.session-cookie-name}
+
+spring:
+  data:
+    neo4j:
+      database: neo4j
+  application:
+    name: dsp-calculator
+  jackson:
+    serialization.write_dates_as_timestamps: false
+  neo4j:
+    uri: bolt://localhost
+    authentication:
+      username: neo4j
+      password: secret
+
+
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: "prometheus"
+  endpoint:
+    prometheus:
+      enabled: true
+
+logging:
+  level:
+    root: WARN
+    com.azhiltsov: TRACE
+    org.springframework.data.neo4j: DEBUG

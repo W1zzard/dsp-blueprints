@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProfile name="!prod">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+    <springProfile name="prod">
+        <springProperty name="profile" source="spring.profiles.active"/>
+        <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
+            <graylogHost>graylog-service</graylogHost>
+            <graylogPort>12201</graylogPort>
+            <useCompression>true</useCompression>
+            <encoder class="de.siegmar.logbackgelf.GelfEncoder">
+                <staticField>application:bss-questionnaire</staticField>
+                <staticField>sourceEnvironment:${profile}</staticField>
+            </encoder>
+        </appender>
+        <!-- Use AsyncAppender to prevent slowdowns -->
+        <appender name="ASYNC_GELF" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="GELF" />
+            <neverBlock>true</neverBlock>
+        </appender>
+
+        <root level="info">
+            <appender-ref ref="ASYNC_GELF" />
+        </root>
+    </springProfile>
+    <springProfile name="prod">
+        <springProperty name="appName" source="spring.application.name"/>
+        <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"application":"${appName}"}</customFields>
+                <lineSeparator>UNIX</lineSeparator>
+                <fieldNames>
+                    <timestamp>datetime</timestamp>
+                    <version>version</version>
+                </fieldNames>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="JSON"/>
+        </root>
+    </springProfile>
+</configuration>
