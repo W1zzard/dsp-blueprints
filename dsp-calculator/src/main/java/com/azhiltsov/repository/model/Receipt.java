@@ -31,4 +31,13 @@ public class Receipt {
 
     @Relationship(type = "NEED_ITEM", direction = Relationship.Direction.OUTGOING)
     private Set<NeedItem> needItemSet = new HashSet<>();
+
+    public Receipt() {
+    }
+
+    public Receipt(final boolean primary, final int productionPerRun, final int runTime) {
+        this.primary = primary;
+        this.productionPerRun = productionPerRun;
+        this.runTime = runTime;
+    }
 }
